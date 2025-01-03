@@ -2,13 +2,15 @@
 
 import React from 'react'
 import { useUser } from '@clerk/nextjs'
+import { redirect } from 'next/navigation'
 
 function Dashboard() {
     const {isLoaded,user} = useUser()
 
     if(!isLoaded || !user){
-        return null
+        redirect("/sign-in")
     }
+
   return (
     <div>
         <h1>DASHBOARD</h1>
