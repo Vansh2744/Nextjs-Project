@@ -7,6 +7,7 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 import { IoCloudUploadOutline } from "react-icons/io5";
+import Link from "next/link";
 
 function Navbar() {
   return (
@@ -14,32 +15,32 @@ function Navbar() {
       <div className="fixed top-5 right-0 w-full">
         <div className="flex justify-end mx-10 gap-40">
           <div className="flex gap-5 py-4 px-4 font-bold text-xl">
-            <a href="/" className="relative group">
+            <Link href="/" className="relative group">
               <span className="group-hover:underline-offset-4 transition-all duration-300">
                 Home
               </span>
               <span className="absolute left-0 bottom-0 h-[3px] w-0 bg-white transition-all duration-300 group-hover:w-full rounded-lg"></span>
-            </a>
+            </Link>
 
-            <a href="/explore" className="relative group">
+            <Link href="/explore" className="relative group">
               <span className="group-hover:underline-offset-4 transition-all duration-300">
                 Explore
               </span>
               <span className="absolute left-0 bottom-0 h-[3px] w-0 bg-white transition-all duration-300 group-hover:w-full rounded-lg"></span>
-            </a>
-            <a href="/dashboard" className="relative group">
+            </Link>
+            <Link href="/dashboard" className="relative group">
               <span className="group-hover:underline-offset-4 transition-all duration-300">
                 Dashboard
               </span>
               <span className="absolute left-0 bottom-0 h-[3px] w-0 bg-white transition-all duration-300 group-hover:w-full rounded-lg"></span>
-            </a>
-            <a
+            </Link>
+            <Link
               href="/upload_video"
               className="bg-orange-600 px-4 py-1 flex gap-1 items-center rounded-full ml-5"
             >
               <IoCloudUploadOutline />
               Upload
-            </a>
+            </Link>
           </div>
           <div className="font-bold text-xl">
             <SignedOut>

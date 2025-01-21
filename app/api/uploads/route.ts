@@ -75,7 +75,7 @@ export async function POST(req:Request){
             },
           });
 
-        return NextResponse.json({message:"Video Uploaded Succesfully"}, {status:200})
+        return NextResponse.json({message:"Video Uploaded Succesfully",video}, {status:200})
     } catch (error) {
         return NextResponse.json({error},{status:500})
     }
