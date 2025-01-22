@@ -3,6 +3,7 @@
 import React from "react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import Image from "next/image";
 
 interface Video {
   url: string;
@@ -22,7 +23,7 @@ function ProfileContent() {
   return (
     <div className="px-40">
       <div className="mt-10 flex">
-        <img
+        <Image
           src={
             image ||
             "https://res.cloudinary.com/djkqpnoks/image/upload/v1734583859/pek6axvgyifougyfqzmc.jpg"

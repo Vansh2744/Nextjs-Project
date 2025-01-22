@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Video {
   url: string;
@@ -71,8 +72,11 @@ function Explore() {
                     }}
                   >
                     <div>
-                      <img
+                      <Image
                         src={video.user.image}
+                        height={50}
+                        width={50}
+                        alt="not available"
                         className="w-14 h-14 rounded-full"
                       />
                     </div>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Image from "next/image";
 
 interface Video {
   url: string;
@@ -46,7 +47,7 @@ function Dashboard() {
     <div className="px-40">
       <div className="mt-10 flex">
         {user && (
-          <img
+          <Image
             src={
               user?.image ||
               "https://res.cloudinary.com/djkqpnoks/image/upload/v1734583859/pek6axvgyifougyfqzmc.jpg"
