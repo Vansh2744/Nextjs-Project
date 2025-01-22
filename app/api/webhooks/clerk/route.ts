@@ -1,81 +1,97 @@
 import { Webhook } from "svix";
 import { headers } from "next/headers";
-import { clerkClient, WebhookEvent } from "@clerk/nextjs/server";
+import { clerkClient, WebhookEvent  } from "@clerk/nextjs/server";
 import { prisma } from "@/app/db";
 
 export async function POST(req: Request) {
   const SIGNING_SECRET = process.env.SIGNING_SECRET;
 
   if (!SIGNING_SECRET) {
-    throw new Error(
-      "Error: Please add SIGNING_SECRET from Clerk Dashboard to .env or .env.local"
-    );
+    console.error("SIGNING_SECRET is not defined in the environment variables.");
+    return new Response("Error: Missing SIGNING_SECRET", {
+      status: 500,
+    });
   }
 
-  // Create new Svix instance with secret
-  const wh = new Webhook(SIGNING_SECRET);
+  // Create new Svix instance with the secret
+  const webhook = new Webhook(SIGNING_SECRET);
 
-  // Get headers
+  // Retrieve headers
   const headerPayload = await headers();
-  const svix_id = headerPayload.get("svix-id");
-  const svix_timestamp = headerPayload.get("svix-timestamp");
-  const svix_signature = headerPayload.get("svix-signature");
+  const svixId = headerPayload.get("svix-id");
+  const svixTimestamp = headerPayload.get("svix-timestamp");
+  const svixSignature = headerPayload.get("svix-signature");
 
-  // If there are no headers, error out
-  if (!svix_id || !svix_timestamp || !svix_signature) {
+  // Validate the presence of required headers
+  if (!svixId || !svixTimestamp || !svixSignature) {
+    console.error("Missing Svix headers in the request.");
     return new Response("Error: Missing Svix headers", {
       status: 400,
     });
   }
 
-  // Get body
-  const payload = await req.json();
-  const body = JSON.stringify(payload);
-
   let evt: WebhookEvent;
 
-  // Verify payload with headers
   try {
-    evt = wh.verify(body, {
-      "svix-id": svix_id,
-      "svix-timestamp": svix_timestamp,
-      "svix-signature": svix_signature,
+    // Retrieve and verify the payload
+    const payload = await req.json();
+    const body = JSON.stringify(payload);
+
+    const evt = webhook.verify(body, {
+      "svix-id": svixId,
+      "svix-timestamp": svixTimestamp,
+      "svix-signature": svixSignature,
     }) as WebhookEvent;
+
+    // Process the webhook event
+    if (evt.type === "user.created") {
+      const {
+        id,
+        username,
+        email_addresses: emailAddresses,
+        first_name: firstName,
+        last_name: lastName,
+        image_url: imageUrl,
+      } = evt.data;
+
+      // Ensure email addresses are available
+      if (!emailAddresses || emailAddresses.length === 0) {
+        console.error("User created event has no email addresses.");
+        return new Response("Error: Missing email addresses", {
+          status: 400,
+        });
+      }
+
+      // Create user in Prisma
+      const newUser = await prisma.user.create({
+        data: {
+          clerkId: id,
+          email: emailAddresses[0]?.email_address || "",
+          username: username || "",
+          firstname: firstName || "",
+          lastname: lastName || "",
+          image: imageUrl || "",
+        },
+      });
+
+      // If user is created, update Clerk user metadata
+      if(newUser){
+        const client = await clerkClient();
+        await client.users.updateUserMetadata(id, {
+          publicMetadata: {
+            userId: newUser.id
+          }
+        })
+      }
+
+      console.log("User created and saved in the database:", newUser);
+    }
+
+    return new Response("Webhook processed successfully", { status: 200 });
   } catch (err) {
-    console.error("Error: Could not verify webhook:", err);
-    return new Response("Error: Verification error", {
+    console.error("Error processing webhook:", err);
+    return new Response("Error: Verification or processing error", {
       status: 400,
     });
   }
-
-  // Do something with payload
-  // For this guide, log payload to console
-  const eventType = evt.type;
-  console.log(evt.data);
-  
-  if (eventType === "user.created") {
-    const { id, username, email_addresses, first_name, last_name, image_url} =
-      evt.data;
-    const newUser = await prisma.user.create({
-      data: {
-        clerkId: id,
-        email: email_addresses[0].email_address,
-        username: username as string,
-        firstname: first_name as string,
-        lastname: last_name as string,
-        image: image_url,
-      },
-    });
-
-    if(newUser){
-      const client = await clerkClient();
-      await client.users.updateUserMetadata(id, {
-        publicMetadata: {
-          userId: newUser.id
-        }
-      })
-    }
-  }
-
-  return new Response("Webhook received", { status: 200 });
 }

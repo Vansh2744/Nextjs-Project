@@ -23,6 +23,7 @@ function UploadVideo() {
     }
 
     if (video.size > MaxFileSize) {
+      setLoading(false);
       toast.error("File size is too large");
       return;
     }
