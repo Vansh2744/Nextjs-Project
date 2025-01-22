@@ -30,8 +30,6 @@ export async function POST(req: Request) {
     });
   }
 
-  let evt: WebhookEvent;
-
   try {
     // Retrieve and verify the payload
     const payload = await req.json();
