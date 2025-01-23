@@ -1,7 +1,7 @@
 import { Webhook } from "svix";
 import { headers } from "next/headers";
-import { clerkClient, WebhookEvent  } from "@clerk/nextjs/server";
-import prisma from "@/app/db";
+import { clerkClient, WebhookEvent } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/prisma"
 
 export async function POST(req: Request) {
   const SIGNING_SECRET = process.env.SIGNING_SECRET;
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
       });
 
       // If user is created, update Clerk user metadata
-      if(newUser){
+      if (newUser) {
         const client = await clerkClient();
         await client.users.updateUserMetadata(id, {
           publicMetadata: {
