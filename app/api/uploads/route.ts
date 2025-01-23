@@ -1,6 +1,6 @@
 import {v2 as cloudinary} from 'cloudinary';
 import { NextResponse } from "next/server";
-import { prisma } from '@/app/db';
+import prisma from '@/app/db';
 import { currentUser } from '@clerk/nextjs/server';
 
 interface CloudinaryUploadResult {
