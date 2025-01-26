@@ -38,7 +38,7 @@ export async function POST(req: Request) {
         const thumbnailBuffer = Buffer.from(thumbnailBytes)
 
         const result = await new Promise<CloudinaryUploadResult>((resolve, reject) => {
-            cloudinary.uploader.upload_stream({ resource_type: "video", folder: "videos_upload" }, (error, result) => {
+            cloudinary.uploader.upload_stream({ resource_type: "video", folder: "videos_upload", chunk_size: 6000000 }, (error, result) => {
                 if (error) {
                     return reject(error);
                 }
